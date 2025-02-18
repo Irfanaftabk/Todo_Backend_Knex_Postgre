@@ -1,5 +1,17 @@
-// Abstraction layer to handle knex configuration per enviornment.
-const environment = process.env.NODE_ENV || 'development';
-const config = require('../knexfile.js')[environment];
+const knex = require('knex');
+const config = require('../knexfile');
 
-module.exports = require('knex')(config);
+const db = knex({
+  ...config.development,  // Spread the development config
+  connection: {
+    ...config.development.connection,
+    ssl: false  // Add SSL false to existing connection config
+  }
+});
+
+// Add error handling for debugging
+db.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+module.exports = db;

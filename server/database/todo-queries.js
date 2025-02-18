@@ -1,39 +1,34 @@
-const knex = require("./connection.js");
+const db = require('./connection');
 
-async function all() {
-    return knex('todos');
+module.exports ={
+//Get all todos
+getALLTodos : () => {
+    return db('todos').select('*').orderBy('order');
+},
+//Get single todo
+getTodoById: (id) =>{
+return db('todos').where({id}).first();
+},
+//Insert a new todo
+createTodo : () => {
+   return db('todos').insert(todo).returning('*');    
+},
+//Update a todo
+updateTodo : (id, todo) => {
+    return db('todos').where({id:Number(id)}).update(todo).returning('*');
+},
+//Create multiple Todos
+createTodos : (todos) =>{
+    return db('todos').insert(todos).returning('*');
+},
+
+deleteTodo:(id) => {
+        return db('todos').where({id}).del();
+    },
+
+deleteAllTodos : async () => {
+ const count = await db('todos').count('id').first();
+ await db('todos').truncate();
+ return count;
 }
-
-async function get(id) {
-    const results = await knex('todos').where({ id });
-    return results[0];
-}
-
-async function create(title, order) {
-    const results = await knex('todos').insert({ title, order }).returning('*');
-    return results[0];
-}
-
-async function update(id, properties) {
-    const results = await knex('todos').where({ id }).update({ ...properties }).returning('*');
-    return results[0];
-}
-
-// delete is a reserved keyword
-async function del(id) {
-    const results = await knex('todos').where({ id }).del().returning('*');
-    return results[0];
-}
-
-async function clear() {
-    return knex('todos').del().returning('*');
-}
-
-module.exports = {
-    all,
-    get,
-    create,
-    update,
-    delete: del,
-    clear
 }

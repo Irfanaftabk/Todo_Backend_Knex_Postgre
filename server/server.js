@@ -1,19 +1,36 @@
-const app = require('./server-config.js');
-const routes = require('./server-routes.js');
+const express = require('express');
+const cors = require('cors');
+const morgan = require('morgan');
 
-const port = process.env.PORT || 5000;
+const db = require('./database/connection');
+const todoRoutes = require('./server-routes');
 
-app.get('/', routes.getAllTodos);
-app.get('/:id', routes.getTodo);
+const app = express();
 
-app.post('/', routes.postTodo);
-app.patch('/:id', routes.patchTodo);
+db.raw('SELECT 1').then(()=>{
+  console.log("Database connected successfully");
+})
+.catch((err) => {
+  console.error("Database connection failed", err);
+});
 
-app.delete('/', routes.deleteAllTodos);
-app.delete('/:id', routes.deleteTodo);
+//Middleware setup
+app.use(cors()); //1
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(port, () => console.log(`Listening on port ${port}`));
-}
+app.use(morgan('dev')); //2
+
+app.use(express.json());
+
+app.use('/todos',todoRoutes);
+
+app.use((err,req,res,next) => {
+  console.error(err.stack);
+  res.status(500).json({error:'Internal Server Error'});
+})
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, ()=>{
+  console.log('Server running on port '+ PORT);
+})
 
 module.exports = app;
