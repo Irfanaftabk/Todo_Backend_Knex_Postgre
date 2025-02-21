@@ -6,7 +6,7 @@ const todoQueries = require('./database/todo-queries.js');
 router.get('/',async(req, res) => {
   try{
     const todos = await todoQueries.getALLTodos();
-    res.json(todos);
+    res.status(200).json(todos);
   }
   catch(error){
     console.error('Error fetching todos', error)
